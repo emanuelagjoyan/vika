@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Վիկտորինա</title>
+    <style>
+        body {
+            background-color: #0d0d2b;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            width: 90%;
+            background-color: #1a1a4b;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.7);
+            border: 2px solid #333399;
+        }
+        #score-display {
+            font-size: 22px;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+        #question-box {
+            background-color: #000066;
+            border: 2px solid #aaa;
+            padding: 20px;
+            border-radius: 40px;
+            font-size: 24px;
+            margin-bottom: 30px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .option-btn {
+            background-color: #000066;
+            color: #ffcc00;
+            border: 2px solid #aaa;
+            padding: 15px 20px;
+            font-size: 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.2s;
+        }
+        
+        @media (hover: hover) and (pointer: fine) {
+            .option-btn:hover:not(:disabled) {
+                background-color: #ffaa00;
+                color: #000;
+                border-color: #ffaa00;
+            }
+        }
+        
+        .option-btn:disabled {
+            cursor: default;
+            opacity: 0.9;
+        }
+        .correct {
+            background-color: #00aa00 !important;
+            color: white !important;
+            border-color: #00aa00 !important;
+        }
+        .wrong {
+            background-color: #cc0000 !important;
+            color: white !important;
+            border-color: #cc0000 !important;
+        }
+        #next-btn {
+            margin-top: 30px;
+            background-color: #ffcc00;
+            color: #000;
+            border: none;
+            padding: 12px 35px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            display: none;
+        }
+        #next-btn:hover {
+            background-color: #ffaa00;
+        }
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="score-display">Հարց 1 / 7 | Միավորներ՝ 0</div>
+    <div id="question-box">Հարցը կհայտնվի այստեղ</div>
+    <div id="options-container" class="options-grid"></div>
+    <button id="next-btn"></button>
+</div>
+
+<script>
+    const questions = [
+        {
+            question: "Ո՞վ է 1805թ․ ապրիլի 2-ին ծնված դանիացի գրողը, ով աշխարհահռչակ հեքիաթների («Անճոռնի ճուտիկը», «Ձյունե թագուհին») հեղինակն է։",
+            options: ["Շառլ Պերո", "Հանս Քրիստիան Անդերսեն", "Եղբայրներ Գրիմ", "Վիլհելմ Հաուֆ"],
+            correctAnswer: 1
+        },
+        {
+            question: "1840թ․ ապրիլի 2-ին ծնված ո՞ր ֆրանսիացի գրողն ու լրագրողն է հանդիսանում «Թերեզ Ռաքեն» և «Մահացած կնոջ խոստովանությունը» վեպերի հեղինակը։",
+            options: ["Վիկտոր Հյուգո", "Օնորե դը Բալզակ", "Ալեքսանդր Դյումա", "Էմիլ Զոլա"],
+            correctAnswer: 3
+        },
+        {
+            question: "Ո՞վ է 1840թ․ ապրիլի 4-ին ծնված այն հայ գրողը, մանկավարժը և «Վերնատուն» խմբակի անդամը, որը գրել է «Անահիտ» հեքիաթը։",
+            options: ["Ղազարոս Աղայան", "Հովհաննես Թումանյան", "Ավետիք Իսահակյան", "Մուրացան"],
+            correctAnswer: 0
+        },
+        {
+            question: "Ո՞վ է 1818 թ․ ապրիլի 4-ին ծնված անգլիացի գրողը, որը հեղինակել է «Անգլուխ ձիավորը» արկածային վեպը։",
+            options: ["Արթուր Կոնան Դոյլ", "Մայն Ռիդ", "Չարլզ Դիքենս", "Ջեկ Լոնդոն"],
+            correctAnswer: 1
+        },
+        {
+            question: "Ո՞վ է 1914 թ․ ապրիլի 14-ին ծնված հայ բանաստեղծը, ում գրչին են պատկանում «Սեզամ բացվիր», «Քարե պատարագ» ժողովածուները։",
+            options: ["Պարույր Սևակ", "Հովհաննես Շիրազ", "Համո Սահյան", "Եղիշե Չարենց"],
+            correctAnswer: 2
+        },
+        {
+            question: "20-րդ դարի ո՞ր արևմտահայ բանաստեղծն է ծնվել 1884թ․ ապրիլի 20-ին և հեղինակել «Սարսուռներ», «Ցեղին սիրտը», «Հեթանոս երգեր», «Հացին երգը» ժողովածուները։",
+            options: ["Սիամանթո", "Միսաք Մեծարենց", "Ռուբեն Սևակ", "Դանիել Վարուժան"],
+            correctAnswer: 3
+        },
+        {
+            question: "1659 թ․ ապրիլի 24-ին ծնված ո՞ր նշանավոր անգլիացի արձակագիրն է հեղինակել բոլորիս հայտնի «Ռոբինզոն Կրուզո» վեպը։",
+            options: ["Դանիել Դեֆո", "Ջոնաթան Սվիֆթ", "Մարկ Տվեն", "Ռոբերտ Լուիս Սթիվենսոն"],
+            correctAnswer: 0
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let currentQuestionMistake = false; // Ստուգում է, թե արդյոք խաղացողը սխալվել է այս հարցում
+
+    function loadQuestion() {
+        const q = questions[currentQuestionIndex];
+        document.getElementById("question-box").innerText = q.question;
+        
+        currentQuestionMistake = false; // Ամեն նոր հարցի սկզբում զրոյացնում ենք սխալի հավանականությունը
+        
+        const container = document.getElementById("options-container");
+        container.innerHTML = ""; 
+        
+        const letters = ["A", "B", "C", "D"];
+        
+        q.options.forEach((optText, index) => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerHTML = `<span style="color:#fff; font-weight:bold; margin-right:10px;">${letters[index]}:</span> ${optText}`;
+            
+            btn.addEventListener("click", function() {
+                checkAnswer(index, btn);
+            });
+            
+            container.appendChild(btn);
+        });
+        
+        document.getElementById("next-btn").style.display = "none";
+        updateScoreDisplay();
+    }
+
+    function checkAnswer(selectedIndex, clickedBtn) {
+        const q = questions[currentQuestionIndex];
+        const isCorrect = (selectedIndex === q.correctAnswer);
+        
+        if (isCorrect) {
+            // Եթե ճիշտ է ընտրել, կանաչում է
+            clickedBtn.classList.add("correct");
+            
+            // Անջատում ենք մնացած բոլոր կոճակները, քանի որ ճիշտը գտնված է
+            const allButtons = document.querySelectorAll(".option-btn");
+            allButtons.forEach(b => b.disabled = true);
+            
+            // Միավոր տալիս ենք միայն եթե այս հարցի վրա դեռ չի սխալվել
+            if (!currentQuestionMistake) {
+                score++;
+            }
+            updateScoreDisplay();
+            
+            // 1 վայրկյանից անցնում ենք հաջորդ հարցին
+            setTimeout(nextQuestion, 1000); 
+            
+        } else {
+            // Եթե սխալ է ընտրել, միայն այս կոճակն է կարմրում և անջատվում
+            clickedBtn.classList.add("wrong");
+            clickedBtn.disabled = true;
+            
+            // Նշում ենք, որ այս հարցում արդեն սխալ թույլ է տրվել
+            currentQuestionMistake = true;
+        }
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            document.getElementById("question-box").style.display = "none";
+            document.getElementById("options-container").innerHTML = `<h2 style='grid-column: 1 / -1; color:#fff;'>Խաղն ավարտվեց:</h2><p style='grid-column: 1 / -1; font-size: 28px; color: #ffcc00;'>Դուք վաստակեցիք ${score} միավոր ${questions.length}-ից:</p>`;
+            document.getElementById("next-btn").innerText = "Խաղալ նորից";
+            document.getElementById("next-btn").style.display = "inline-block";
+            document.getElementById("next-btn").onclick = () => location.reload();
+        }
+    }
+
+    function updateScoreDisplay() {
+        let qNum = currentQuestionIndex + 1;
+        if (qNum > questions.length) qNum = questions.length;
+        document.getElementById("score-display").innerText = "Հարց " + qNum + " / " + questions.length + " | Միավորներ՝ " + score;
+    }
+
+    window.onload = loadQuestion;
+</script>
+
+</body>
+</html>
